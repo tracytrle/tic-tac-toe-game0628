@@ -11,12 +11,18 @@ export default function Board({ squares, handleClick }) {
       <div>
         <div className="board-row">
           {firstRow.map((cell, cellIndex) => (
-            <Square index={cellIndex} symbol={cell} handleClick={handleClick} />
+            <Square
+              key={cellIndex}
+              index={cellIndex}
+              symbol={cell}
+              handleClick={handleClick}
+            />
           ))}
         </div>
         <div className="board-row">
           {secondRow.map((cell, cellIndex) => (
             <Square
+              key={3 + cellIndex}
               index={3 + cellIndex}
               symbol={cell}
               handleClick={handleClick}
@@ -26,6 +32,7 @@ export default function Board({ squares, handleClick }) {
         <div className="board-row">
           {thirdRow.map((cell, cellIndex) => (
             <Square
+              key={6 + cellIndex}
               index={6 + cellIndex}
               symbol={cell}
               handleClick={handleClick}

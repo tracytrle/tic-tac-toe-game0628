@@ -1,6 +1,7 @@
-import { set } from "lodash";
 import React, { useState, useEffect } from "react";
 import Board from "./Board";
+let initialMove = -1;
+// let curIndex = -1;
 
 function Game() {
   const [squares, setSquares] = useState(Array(9).fill(null));
@@ -17,12 +18,12 @@ function Game() {
 
   useEffect(() => {
     // "Your code here";
-    console.log("test useEffect");
+    // console.log("test useEffect");
 
     const result = calculateWinner(squares);
     if (!result) {
     }
-    console.log("test useEffect with result: ", result);
+    // console.log("test useEffect with result: ", result);
     // not allow to play when the winner is defined
     setWinner(result);
   }, [squares]);
@@ -56,38 +57,41 @@ function Game() {
 
   function jumpTo(move) {
     setCurrentMove(move);
+
     const newHistory = history.slice(0, move);
     setHistory(newHistory);
 
     const newButtons = buttons.slice(0, move);
     setButtons(newButtons);
+    console.log("print currentMove: ", currentMove);
   }
 
   //Handle player
   const handleClick = (i) => {
     // "Your code here";
     // prevent handleClick from being called when the game has already been won
-    if (winner) return;
+    if (winner || squares[i]) return;
+    if (initialMove === -1) {
+      initialMove = i;
+    }
+
+    // curIndex = i;
 
     const copiedSquares = squares.slice();
     copiedSquares[i] = xIsNext ? "X" : "O";
     setSquares(copiedSquares);
     setXIsNext(!xIsNext);
 
-    // set HistoryMove
-    // setHistory(history.concat([{ squares: copiedSquares }]));
-    const newHistory = [...history, currentMove + 1];
+    // set history
+    const newHistory = history.slice();
+    newHistory.push(i);
     setHistory(newHistory);
 
-    // setHistory(history.slice(0, currentMove + 1).concat([{ squares: newSquares }]));
-
+    // set Buttons
     const newButtons = buttons.slice();
     newButtons.push(
-      <button
-        key={newButtons.length + 1}
-        onClick={() => jumpTo(newButtons.length + 1)}
-      >
-        {`Go to move #${newButtons.length + 1}`}
+      <button key={newButtons.length} onClick={() => jumpTo(newButtons.length)}>
+        {`Go to move #${newButtons.length}`}
       </button>
     );
     setButtons(newButtons);
@@ -109,15 +113,24 @@ function Game() {
   //   );
   // };
   const undo = () => {
-    if (currentMove === 0) return;
+    if (currentMove === 0 || history.length === 0) return;
+    // console.log("print curIndex: ", curIndex);
 
     // if won before undo
     setWinner(null);
 
+    // get the last item of history
+    let curIndex = history[history.length - 1];
+
+    const copiedSquares = squares.slice();
+    copiedSquares[curIndex] = null;
+    setSquares(copiedSquares);
+
+    // reset history
     const newHistory = history.slice(0, history.length - 1);
     setHistory(newHistory);
 
-    const newButtons = buttons.slice(0, buttons.length - 2);
+    const newButtons = buttons.slice(0, buttons.length - 1);
     setCurrentMove(currentMove - 1);
     setButtons(newButtons);
 
@@ -131,7 +144,7 @@ function Game() {
         <span className="player">Next player is: {xIsNext ? "X" : "O"}</span>
         <Board squares={squares} handleClick={handleClick} />
 
-        <div class="history">
+        <div className="history">
           <h4>History</h4>
           <ul>
             {buttons.map((button, move) => (
@@ -147,7 +160,7 @@ function Game() {
           </ul>
         </div>
         <span></span>
-        <div class="undo-btn">
+        <div className="undo-btn">
           <button onClick={undo}>Undo</button>
         </div>
       </div>
